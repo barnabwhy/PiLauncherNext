@@ -23,7 +23,7 @@ jobs:
     - name: Android signing key
       run: |
         cd Launcher
-        sed -i 's/C:\\\\Users\\\\Username\\\\//g' build.gradle
+        sed -i 's/C:\\\\Users\\\\Username\\\\/..\//g' build.gradle
         echo "${{ secrets.API_KEY }}" > android_signing_key.jks
     - name: Grant execute permission for gradlew
       run: |
