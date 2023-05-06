@@ -9,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -24,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
@@ -123,6 +125,9 @@ public class AppsAdapter extends BaseAdapter
             holder.progressBar = convertView.findViewById(R.id.progress_bar);
             convertView.setTag(holder);
 
+            // Set clipToOutline to true on imageView (Workaround for bug)
+            holder.imageView.setClipToOutline(true);
+
             // Set size of items
             ViewGroup.LayoutParams params = holder.layout.getLayoutParams();
 
@@ -131,7 +136,7 @@ public class AppsAdapter extends BaseAdapter
                 if(showTextLabels) {
                     params.height = (int) (itemScale * 0.8);
                 }else{
-                    params.height = (int) (itemScale * 0.6525);
+                    params.height = (int) (itemScale * 0.5625);
                 }
             } else {
                 if(showTextLabels) {
@@ -315,11 +320,16 @@ public class AppsAdapter extends BaseAdapter
 
         //set layout
         Context context = mainActivityContext;
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.CustomDialog);
         builder.setView(R.layout.dialog_app_details);
         AlertDialog dialog = builder.create();
         dialog.getWindow().setBackgroundDrawableResource(R.drawable.bkg_dialog);
         dialog.show();
+
+        mainActivityContext.findViewById(R.id.dialogDim).setVisibility(View.VISIBLE);
+        dialog.setOnDismissListener((DialogInterface dialogInterface) -> {
+            mainActivityContext.findViewById(R.id.dialogDim).setVisibility(View.GONE);
+        });
 
         //info action
         dialog.findViewById(R.id.info).setOnClickListener(view13 -> mainActivityContext.openAppDetails(actApp.packageName));

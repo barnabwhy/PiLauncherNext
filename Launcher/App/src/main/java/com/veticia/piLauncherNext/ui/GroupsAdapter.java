@@ -1,8 +1,7 @@
 package com.veticia.piLauncherNext.ui;
 
 import android.app.AlertDialog;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
+import android.content.DialogInterface;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,7 +40,7 @@ public class GroupsAdapter extends BaseAdapter {
         appGroups = settings.getAppGroupsSorted(false);
         if (editMode) {
             appGroups.add(HIDDEN_GROUP);
-            appGroups.add("+ " + mainActivity.getString(R.string.add_group));
+            appGroups.add("+ \t" + mainActivity.getString(R.string.add_group));
         }
         selectedGroups = settings.getSelectedGroups();
     }
@@ -93,11 +92,17 @@ public class GroupsAdapter extends BaseAdapter {
             final Set<String> appGroupsList = settingsProvider.getAppGroups();
             final String oldGroupName = settingsProvider.getAppGroupsSorted(false).get(position);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity);
+            AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity, R.style.CustomDialog);
             builder.setView(R.layout.dialog_group_details);
 
             AlertDialog dialog = builder.create();
             dialog.getWindow().setBackgroundDrawableResource(R.drawable.bkg_dialog);
+
+            mainActivity.findViewById(R.id.dialogDim).setVisibility(View.VISIBLE);
+            dialog.setOnDismissListener((DialogInterface dialogInterface) -> {
+                mainActivity.findViewById(R.id.dialogDim).setVisibility(View.GONE);
+            });
+
             dialog.show();
 
             final EditText groupNameInput = dialog.findViewById(R.id.group_name);
@@ -159,9 +164,7 @@ public class GroupsAdapter extends BaseAdapter {
         final View finalConvertView = convertView;
         convertView.setOnDragListener((view, event) -> {
             if (event.getAction() == DragEvent.ACTION_DRAG_ENTERED) {
-                int[] colors = new int[]{Color.argb(192, 128, 128, 255), Color.TRANSPARENT};
-                GradientDrawable.Orientation orientation = GradientDrawable.Orientation.LEFT_RIGHT;
-                finalConvertView.setBackground(new GradientDrawable(orientation, colors));
+                finalConvertView.setBackgroundResource(R.drawable.bkg_group_drag);
             } else if (event.getAction() == DragEvent.ACTION_DRAG_EXITED) {
                 setLook(position, finalConvertView, holder.menu);
             } else if (event.getAction() == DragEvent.ACTION_DROP) {
@@ -192,7 +195,7 @@ public class GroupsAdapter extends BaseAdapter {
         // set value into textview
         TextView textView = convertView.findViewById(R.id.textLabel);
         if (HIDDEN_GROUP.equals(appGroups.get(position))) {
-            String hiddenText = " -  " + mainActivity.getString(R.string.apps_hidden);
+            String hiddenText = "-  \t" + mainActivity.getString(R.string.apps_hidden);
             textView.setText(hiddenText);
         } else {
             textView.setText(appGroups.get(position));
@@ -211,23 +214,16 @@ public class GroupsAdapter extends BaseAdapter {
         filler.setMinimumWidth(gap);
         boolean isSelected = selectedGroups.contains(appGroups.get(position));
         if (isSelected) {
-            int[] colors = new int[] {Color.argb(192, 255, 255, 255), Color.TRANSPARENT};
-            GradientDrawable.Orientation orientation = GradientDrawable.Orientation.TOP_BOTTOM;
-            itemView.setBackground(new GradientDrawable(orientation, colors));
-            if(position==getCount()-1){
-                filler.setBackground(new GradientDrawable(orientation, colors));
-            }
+            itemView.setBackgroundResource(R.drawable.bkg_group_select);
+
             if (isEditMode && (position < getCount() - 2)) {
                 menu.setVisibility(View.VISIBLE);
             } else {
                 menu.setVisibility(View.GONE);
             }
         } else {
-            itemView.setBackgroundColor(Color.TRANSPARENT);
+            itemView.setBackgroundResource(R.drawable.bkg_group_none);
             menu.setVisibility(View.GONE);
-            if(position==getCount()-1){
-                filler.setBackgroundColor(Color.TRANSPARENT);
         }
     }
-}
 }

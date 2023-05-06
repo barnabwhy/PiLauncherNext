@@ -13,6 +13,7 @@
         android:paddingBottom="20dp"
         android:textColor="@android:color/white"
         android:textSize="20sp"
+        android:textStyle="bold"
         android:text="@string/settings_platforms"/>
 
     <LinearLayout
@@ -31,7 +32,8 @@
 
         <TextView
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
             android:layout_weight="1"
             android:text="Android apps"
             android:textColor="@android:color/white"
@@ -40,8 +42,7 @@
         <CheckBox
             android:id="@+id/checkbox_android"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/checkbox_off_background" />
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <LinearLayout
@@ -60,7 +61,8 @@
 
         <TextView
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
             android:layout_weight="1"
             android:text="Sony Playstation Portable (PPSSPP)"
             android:textColor="@android:color/white"
@@ -69,8 +71,7 @@
         <CheckBox
             android:id="@+id/checkbox_psp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/checkbox_off_background" />
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 
@@ -90,7 +91,8 @@
 
         <TextView
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
             android:layout_weight="1"
             android:text="Virtual Reality"
             android:textColor="@android:color/white"
@@ -99,7 +101,6 @@
         <CheckBox
             android:id="@+id/checkbox_vr"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:drawable/checkbox_off_background" />
+            android:layout_height="wrap_content" />
     </LinearLayout>
 </LinearLayout>

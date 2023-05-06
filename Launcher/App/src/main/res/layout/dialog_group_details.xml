@@ -12,6 +12,7 @@
         android:paddingBottom="20dp"
         android:textSize="20sp"
         android:textColor="@android:color/white"
+        android:textStyle="bold"
         android:text="@string/edit_group"/>
 
     <EditText

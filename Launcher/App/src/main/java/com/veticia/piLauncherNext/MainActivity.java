@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -24,6 +25,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.widget.AdapterView;
@@ -31,6 +33,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Spinner;
@@ -63,7 +66,7 @@ public class MainActivity extends Activity
 {
     private static final String CUSTOM_THEME = "theme.png";
     private static final boolean DEFAULT_NAMES = true;
-    private static final int DEFAULT_OPACITY = 7;
+    private static final int DEFAULT_OPACITY = 10;
     public static final int DEFAULT_SCALE = 2;
     private static final int DEFAULT_THEME = 0;
     public static final int DEFAULT_STYLE = 0;
@@ -89,6 +92,8 @@ public class MainActivity extends Activity
 
     private static ImageView[] selectedThemeImageViews;
 
+    private RelativeLayout mainView;
+    private TextView appPageTitle;
     private GridView appGridView;
     private ImageView backgroundImageView;
     private GridView groupPanelGridView;
@@ -123,9 +128,15 @@ public class MainActivity extends Activity
         settingsProvider = SettingsProvider.getInstance(this);
 
         // Get UI instances
+        mainView = findViewById(R.id.linearLayoutMain);
+        appPageTitle = findViewById(R.id.appsPageTitle);
         appGridView = findViewById(R.id.appsView);
         backgroundImageView = findViewById(R.id.background);
         groupPanelGridView = findViewById(R.id.groupsView);
+
+        // Set clipToOutline to true on mainView (Workaround for bug)
+        mainView.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
+        mainView.setClipToOutline(true);
 
         // Handle group click listener
         groupPanelGridView.setOnItemClickListener((parent, view, position, id) -> {
@@ -362,7 +373,14 @@ public class MainActivity extends Activity
         boolean editMode = sharedPreferences.getBoolean(SettingsProvider.KEY_EDITMODE, false);
         appGridView.setAdapter(new AppsAdapter(this, editMode, scale, names));
         groupPanelGridView.setAdapter(new GroupsAdapter(this, editMode));
-        groupPanelGridView.setNumColumns(Math.min(groupPanelGridView.getAdapter().getCount(), GroupsAdapter.MAX_GROUPS - 1));
+        //groupPanelGridView.setNumColumns(Math.min(groupPanelGridView.getAdapter().getCount(), GroupsAdapter.MAX_GROUPS - 1));
+        groupPanelGridView.setNumColumns(1);
+
+        ArrayList<String> groups = settingsProvider.getAppGroupsSorted(true);
+        if(groups.size() > 1)
+            appPageTitle.setText(String.join(" & ", String.join(", ", groups.subList(0, groups.size()-1)), groups.get(groups.size()-1)));
+        else
+            appPageTitle.setText(groups.get(0));
     }
 
     public void setTheme(ImageView[] views, int index) {
@@ -389,9 +407,10 @@ public class MainActivity extends Activity
     }
 
     public Dialog showPopup(int layout) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomDialog);
         builder.setView(layout);
         AlertDialog dialog = builder.create();
+
         dialog.show();
 
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
@@ -411,6 +430,11 @@ public class MainActivity extends Activity
     private void showSettingsMain() {
 
         Dialog dialog = showPopup(R.layout.dialog_settings);
+        mainView.findViewById(R.id.dialogDim).setVisibility(View.VISIBLE);
+        dialog.setOnDismissListener((DialogInterface dialogInterface) -> {
+            mainView.findViewById(R.id.dialogDim).setVisibility(View.GONE);
+        });
+
         SettingsGroup apps = dialog.findViewById(R.id.settings_apps);
         boolean editMode = !sharedPreferences.getBoolean(SettingsProvider.KEY_EDITMODE, false);
         apps.setIcon(editMode ? R.drawable.ic_editing_on : R.drawable.ic_editing_off);

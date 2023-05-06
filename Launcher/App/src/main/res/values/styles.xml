@@ -14,4 +14,7 @@
         <item name="android:textColor">@color/ef_colorTextPrimary</item>
     </style>
 
+    <style name="CustomDialog" parent="android:Theme.Material.Dialog.Alert">
+        <item name="android:backgroundDimAmount">0</item>
+    </style>
 </resources>
