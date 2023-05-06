@@ -19,7 +19,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
-import android.preference.PreferenceManager;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -33,7 +32,7 @@ import android.view.animation.RotateAnimation;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.veticia.piLauncherNext.ImageUtils;
@@ -45,13 +44,12 @@ import com.veticia.piLauncherNext.platforms.AbstractPlatform;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class AppsAdapter extends BaseAdapter
 {
-    int style = sharedPreferences.getInt(SettingsProvider.KEY_CUSTOM_STYLE, DEFAULT_STYLE);
+    final int style = sharedPreferences.getInt(SettingsProvider.KEY_CUSTOM_STYLE, DEFAULT_STYLE);
     private static Drawable iconDrawable;
     private static File iconFile;
     private static String packageName;
@@ -78,14 +76,14 @@ public class AppsAdapter extends BaseAdapter
         ArrayList<String> sortedSelectedGroups = settingsProvider.getAppGroupsSorted(true);
         boolean isFirstGroupSelected = !sortedSelectedGroups.isEmpty() && !sortedGroups.isEmpty() && sortedSelectedGroups.get(0).compareTo(sortedGroups.get(0)) == 0;
         appList = settingsProvider.getInstalledApps(context, sortedSelectedGroups, isFirstGroupSelected);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mainActivityContext);
+        sharedPreferences = mainActivityContext.getSharedPreferences(mainActivityContext.getPackageName() + "_preferences", Context.MODE_PRIVATE);
         SORT_FIELD sortField = SORT_FIELD.values()[sharedPreferences.getInt(SettingsProvider.KEY_SORT_FIELD, 0)];
         SORT_ORDER sortOrder = SORT_ORDER.values()[sharedPreferences.getInt(SettingsProvider.KEY_SORT_ORDER, 0)];
         this.sort(sortField, sortOrder);
     }
 
     private static class ViewHolder {
-        RelativeLayout layout;
+        LinearLayout layout;
         ImageView imageView;
         TextView textView;
         ImageView progressBar;
@@ -255,21 +253,12 @@ public class AppsAdapter extends BaseAdapter
         this.notifyDataSetChanged(); // for real time updates
     }
 
-    @SuppressWarnings("RedundantVariableInitializer")
     private Long getInstallDate(ApplicationInfo applicationInfo) {
-        String installDateString;
-        long installDateLong = 0L;
-        if (applicationInfo.taskAffinity != null) {
-            installDateString = applicationInfo.taskAffinity;
-        } else {
-            installDateString = "0";
+        if(SettingsProvider.installDates.containsKey(applicationInfo.packageName)) {
+            return SettingsProvider.installDates.get(applicationInfo.packageName);
+        }else{
+            return 0L;
         }
-        try {
-            installDateLong = Long.parseLong(installDateString);
-        } catch (NumberFormatException e) {
-            // result 0 is already defined by default
-        }
-        return installDateLong;
     }
 
     public void sort(SORT_FIELD field, SORT_ORDER order) {
@@ -340,7 +329,7 @@ public class AppsAdapter extends BaseAdapter
         final EditText input = dialog.findViewById(R.id.app_name);
         input.setText(name);
         dialog.findViewById(R.id.ok).setOnClickListener(view12 -> {
-            settingsProvider.setAppDisplayName(context, actApp, input.getText().toString());
+            settingsProvider.setAppDisplayName(actApp, input.getText().toString());
             mainActivityContext.reloadUI();
             dialog.dismiss();
         });

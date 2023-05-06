@@ -21,8 +21,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewOutlineProvider;
@@ -30,18 +28,17 @@ import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.Spinner;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
 import com.veticia.piLauncherNext.platforms.AbstractPlatform;
-import com.veticia.piLauncherNext.platforms.AndroidPlatform;
 import com.veticia.piLauncherNext.platforms.PSPPlatform;
 import com.veticia.piLauncherNext.platforms.VRPlatform;
 import com.veticia.piLauncherNext.ui.AppsAdapter;
@@ -98,6 +95,7 @@ public class MainActivity extends Activity
     private ImageView backgroundImageView;
     private GridView groupPanelGridView;
 
+    @SuppressWarnings("unused")
     private boolean activityHasFocus;
     public static SharedPreferences sharedPreferences;
     private SettingsProvider settingsProvider;
@@ -124,7 +122,7 @@ public class MainActivity extends Activity
         if (AbstractPlatform.isMagicLeapHeadset()) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        sharedPreferences = getSharedPreferences(getPackageName() + "_preferences", Context.MODE_PRIVATE);
         settingsProvider = SettingsProvider.getInstance(this);
 
         // Get UI instances
@@ -330,7 +328,6 @@ public class MainActivity extends Activity
             }
         } else if (requestCode == PICK_THEME_CODE) {
             if (resultCode == RESULT_OK) {
-
                 for (Image image : ImagePicker.getImages(data)) {
                     Bitmap bitmap = ImageUtils.getResizedBitmap(BitmapFactory.decodeFile(image.getPath()), 1280);
                     ImageUtils.saveBitmap(bitmap, new File(getApplicationInfo().dataDir, CUSTOM_THEME));
@@ -494,10 +491,10 @@ public class MainActivity extends Activity
         Dialog d = showPopup(R.layout.dialog_look);
         d.setOnDismissListener(dialogInterface -> isSettingsLookOpen = false);
         d.findViewById(R.id.open_accesibility).setOnClickListener(view -> {
-            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-            startActivity(intent);
+            ButtonManager.isAccessibilityInitialized(this);
+            ButtonManager.requestAccessibility(this);
         });
-        CheckBox names = d.findViewById(R.id.checkbox_names);
+        Switch names = d.findViewById(R.id.checkbox_names);
         names.setChecked(sharedPreferences.getBoolean(SettingsProvider.KEY_CUSTOM_NAMES, DEFAULT_NAMES));
         names.setOnCheckedChangeListener((compoundButton, value) -> {
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -566,6 +563,7 @@ public class MainActivity extends Activity
         for (int i = 0; i < views.length; i++) {
             int index = i;
             views[i].setOnClickListener(view12 -> {
+                //noinspection NonStrictComparisonCanBeEquality
                 if (index >= THEMES.length) {
                     selectedThemeImageViews = views;
                     ImageUtils.showImagePicker(this, PICK_THEME_CODE);
@@ -589,7 +587,7 @@ public class MainActivity extends Activity
             int index = i;
             styles[i].setOnClickListener(view13 -> setStyle(styles, index));
         }
-        CheckBox autorun = d.findViewById(R.id.checkbox_autorun);
+        Switch autorun = d.findViewById(R.id.checkbox_autorun);
         autorun.setChecked(sharedPreferences.getBoolean(SettingsProvider.KEY_AUTORUN, DEFAULT_AUTORUN));
         autorun.setOnCheckedChangeListener((compoundButton, value) -> {
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -602,7 +600,7 @@ public class MainActivity extends Activity
     private void showSettingsPlatforms() {
         Dialog d = showPopup(R.layout.dialog_platforms);
 
-        CheckBox android = d.findViewById(R.id.checkbox_android);
+        Switch android = d.findViewById(R.id.checkbox_android);
         android.setChecked(sharedPreferences.getBoolean(SettingsProvider.KEY_PLATFORM_ANDROID, true));
         android.setOnCheckedChangeListener((compoundButton, value) -> {
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -610,9 +608,9 @@ public class MainActivity extends Activity
             editor.apply();
             reloadUI();
         });
-        d.findViewById(R.id.layout_android).setVisibility(new AndroidPlatform().isSupported(this) ? View.VISIBLE : View.GONE);
+        d.findViewById(R.id.layout_android).setVisibility(View.VISIBLE); //android platform is always supported
 
-        CheckBox psp = d.findViewById(R.id.checkbox_psp);
+        Switch psp = d.findViewById(R.id.checkbox_psp);
         psp.setChecked(sharedPreferences.getBoolean(SettingsProvider.KEY_PLATFORM_PSP, true));
         psp.setOnCheckedChangeListener((compoundButton, value) -> {
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -622,7 +620,7 @@ public class MainActivity extends Activity
         });
         d.findViewById(R.id.layout_psp).setVisibility(new PSPPlatform().isSupported(this) ? View.VISIBLE : View.GONE);
 
-        CheckBox vr = d.findViewById(R.id.checkbox_vr);
+        Switch vr = d.findViewById(R.id.checkbox_vr);
         vr.setChecked(sharedPreferences.getBoolean(SettingsProvider.KEY_PLATFORM_VR, true));
         vr.setOnCheckedChangeListener((compoundButton, value) -> {
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -630,7 +628,7 @@ public class MainActivity extends Activity
             editor.apply();
             reloadUI();
         });
-        d.findViewById(R.id.layout_vr).setVisibility(new VRPlatform().isSupported(this) ? View.VISIBLE : View.GONE);
+        d.findViewById(R.id.layout_vr).setVisibility(new VRPlatform().isSupported() ? View.VISIBLE : View.GONE);
     }
 
     private void showSettingsTweaks() {

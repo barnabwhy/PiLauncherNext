@@ -10,6 +10,7 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import com.veticia.piLauncherNext.MainActivity;
+import com.veticia.piLauncherNext.SettingsProvider;
 
 import net.didion.loopy.iso9660.ISO9660FileEntry;
 import net.didion.loopy.iso9660.ISO9660FileSystem;
@@ -18,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class PSPPlatform  extends AbstractPlatform {
@@ -27,7 +29,6 @@ public class PSPPlatform  extends AbstractPlatform {
     private static final String RECENT_TAG = "[Recent]";
     public static final String PACKAGE_PREFIX = "psp/";
 
-    @Override
     public ArrayList<ApplicationInfo> getInstalledApps(Context context) {
         ArrayList<ApplicationInfo> output = new ArrayList<>();
         if (!isSupported(context)) {
@@ -38,17 +39,15 @@ public class PSPPlatform  extends AbstractPlatform {
             ApplicationInfo app = new ApplicationInfo();
             app.name = path.substring(path.lastIndexOf('/') + 1);
             app.packageName = PACKAGE_PREFIX + path;
-            File file = new File(path);
-            long lastModDate = file.lastModified();
-            app.taskAffinity = Long.toString(lastModDate);
+            if(!SettingsProvider.installDates.containsKey(app.packageName)) {
+                File file = new File(path);
+                SettingsProvider.installDates.put(app.packageName, file.lastModified());
+            }
             output.add(app);
-            //debug
-            //Log.e("PSPmDate", app.name + " @ " + app.taskAffinity);
         }
         return output;
     }
 
-    @Override
     public boolean isSupported(Context context) {
         for (ApplicationInfo app : new VRPlatform().getInstalledApps(context)) {
             if (app.packageName.startsWith(MainActivity.EMULATOR_PACKAGE)) {
@@ -69,10 +68,12 @@ public class PSPPlatform  extends AbstractPlatform {
 
         new Thread(() -> {
             try {
-                file.getParentFile().mkdirs();
+                //noinspection ResultOfMethodCallIgnored
+                Objects.requireNonNull(file.getParentFile()).mkdirs();
                 String isoToRead = app.packageName.substring(PACKAGE_PREFIX.length());
                 ISO9660FileSystem discFs = new ISO9660FileSystem(new File(isoToRead), true);
 
+                //noinspection rawtypes
                 Enumeration es = discFs.getEntries();
                 while (es.hasMoreElements()) {
                     ISO9660FileEntry fileEntry = (ISO9660FileEntry) es.nextElement();

@@ -26,27 +26,25 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
 public abstract class AbstractPlatform {
-    int style = sharedPreferences.getInt(SettingsProvider.KEY_CUSTOM_STYLE, DEFAULT_STYLE);
+    final int style = sharedPreferences.getInt(SettingsProvider.KEY_CUSTOM_STYLE, DEFAULT_STYLE);
     private final String ICONS1_URL = "https://raw.githubusercontent.com/Veticia/binaries/main/"+STYLES[style]+"/";
     private static final String ICONS_FALLBACK_URL = "https://pilauncher.lwiczka.pl/get_icon.php?id=";
     protected static final HashMap<String, Drawable> iconCache = new HashMap<>();
     protected static final HashSet<String> ignoredIcons = new HashSet<>();
 
-    public abstract ArrayList<ApplicationInfo> getInstalledApps(Context context);
-    public abstract boolean isSupported(Context context);
-    private void downloadIcon(final Activity activity, String pkg, String name, final Runnable callback) {
+    private void downloadIcon(final Activity activity, String pkg, @SuppressWarnings("unused") String name, final Runnable callback) {
         final File file = pkg2path(activity, STYLES[style] + "." + pkg);
         new Thread(() -> {
             try {
                 synchronized (pkg) {
-                    if (ignoredIcons.contains(STYLES[style] + "." + file.getName())) {
+                    //if (ignoredIcons.contains(STYLES[style] + "." + file.getName())) {
                         //ignored icon
-                    } else if (downloadIconFromUrl(ICONS1_URL + pkg + ".png", file)) {
+                    //} else
+                    if (downloadIconFromUrl(ICONS1_URL + pkg + ".png", file)) {
                         activity.runOnUiThread(callback);
                     } else if (downloadIconFromUrl(ICONS_FALLBACK_URL + pkg + "&set=" + STYLES[style], file)) {
                         activity.runOnUiThread(callback);
@@ -201,15 +199,15 @@ public abstract class AbstractPlatform {
 
     public static boolean isPicoHeadset() {
         String vendor = Build.MANUFACTURER.toUpperCase();
-        return vendor.replace("İ","I").startsWith("PICO");
+        return vendor.startsWith("PICO") || vendor.startsWith("PİCO");
     }
 
     protected static boolean isVirtualRealityApp(ApplicationInfo app) {
-        String[] nonVrApps = {
-                "com.pico4.settings",
-                "com.pico.browser",
-                "com.ss.android.ttvr",
-                "com.pvr.mrc"
+        String[] nonVrApps = {      //move to tools category
+                "com.pico4.settings",   //app that shows android settings
+                "com.pico.browser",     //in-build pico web browser
+                "com.ss.android.ttvr",  //pico video
+                "com.pvr.mrc"           //pico's mixed reality capture
         };
         for (String nonVrApp : nonVrApps) {
             if (app.packageName.startsWith(nonVrApp)) {
