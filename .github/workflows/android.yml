@@ -33,3 +33,8 @@ jobs:
       run: |
         cd Launcher
         ./gradlew build
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: piLauncherNext-DEBUG.apk
+        path: Launcher/App/build/outputs/apk/debug/App-debug.apk
