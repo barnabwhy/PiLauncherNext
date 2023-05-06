@@ -32,13 +32,13 @@ jobs:
     - name: Build with Gradle
       run: |
         cd Launcher
-        ./gradlew build
+        ./gradlew assembleRelease
     - name: Rename output
       run: |
-        cd Launcher/App/build/outputs/apk/debug
-        mv App-debug.apk piLauncherNext-DEBUG.apk
+        cd Launcher/App/build/outputs/apk/release
+        mv App-release.apk piLauncherNext.apk
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: piLauncherNext-DEBUG
-        path: Launcher/App/build/outputs/apk/debug/piLauncherNext-DEBUG.apk
+        name: piLauncherNext
+        path: Launcher/App/build/outputs/apk/debug/piLauncherNext.apk
