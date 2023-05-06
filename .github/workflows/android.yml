@@ -20,8 +20,10 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Emter Launcher directory
+    - name: Enter Launcher directory
       run: cd Launcher
+    - name: ls Launcher
+      run: ls
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
