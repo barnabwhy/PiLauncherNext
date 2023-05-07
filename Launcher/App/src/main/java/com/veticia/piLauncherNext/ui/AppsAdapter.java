@@ -134,7 +134,7 @@ public class AppsAdapter extends BaseAdapter
 
             //Calculate text height
             holder.textView.measure(0, 0);
-            int textHeight = (int) holder.textView.getMeasuredHeight();
+            int textHeight = (int) holder.textView.getMeasuredHeight() + (int) ((ViewGroup.MarginLayoutParams) holder.textView.getLayoutParams()).topMargin + (int) ((ViewGroup.MarginLayoutParams) holder.textView.getLayoutParams()).bottomMargin;
 
             ViewGroup.LayoutParams params = holder.layout.getLayoutParams();
 

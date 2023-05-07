@@ -15,9 +15,9 @@
         <ImageView
             android:id="@+id/imageLabel"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:contentDescription="@string/app_name"
-            android:scaleType="fitCenter"
+            android:scaleType="centerCrop"
             android:src="@android:drawable/ic_menu_gallery"
             android:background="@drawable/bkg_app" />
 
