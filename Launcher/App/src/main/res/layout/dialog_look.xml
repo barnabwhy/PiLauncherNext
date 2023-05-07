@@ -165,6 +165,24 @@
         android:padding="10dp">
 
         <Switch
+            android:id="@+id/checkbox_store_icons"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/store_icon_priority"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:trackTint="@color/switch_track_color" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <Switch
             android:id="@+id/checkbox_names"
             android:layout_width="0dp"
             android:layout_height="match_parent"

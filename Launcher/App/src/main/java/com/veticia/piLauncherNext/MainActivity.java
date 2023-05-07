@@ -67,6 +67,7 @@ public class MainActivity extends Activity
     public static final int DEFAULT_SCALE = 2;
     private static final int DEFAULT_THEME = 0;
     public static final int DEFAULT_STYLE = 0;
+    public static final boolean DEFAULT_STORE_ICON_PRIORITY = false;
     public static final int PICK_ICON_CODE = 450;
     public static final int PICK_THEME_CODE = 95;
 
@@ -505,6 +506,16 @@ public class MainActivity extends Activity
             ButtonManager.isAccessibilityInitialized(this);
             ButtonManager.requestAccessibility(this);
         });
+        Switch storeIcons = d.findViewById(R.id.checkbox_store_icons);
+        storeIcons.setChecked(sharedPreferences.getBoolean(SettingsProvider.KEY_STORE_ICON_PRIORITY, DEFAULT_STORE_ICON_PRIORITY));
+        storeIcons.setOnCheckedChangeListener((compoundButton, value) -> {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(SettingsProvider.KEY_STORE_ICON_PRIORITY, value);
+            editor.apply();
+            AbstractPlatform.clearAllIcons(this);
+            reloadUI();
+        });
+
         Switch names = d.findViewById(R.id.checkbox_names);
         names.setChecked(sharedPreferences.getBoolean(SettingsProvider.KEY_CUSTOM_NAMES, DEFAULT_NAMES));
         names.setOnCheckedChangeListener((compoundButton, value) -> {
