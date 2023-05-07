@@ -345,6 +345,8 @@ public class AppsAdapter extends BaseAdapter
         AbstractPlatform platform = AbstractPlatform.getPlatform(actApp);
         platform.loadIcon(mainActivityContext, tempImage, actApp, name);
 
+        tempImage.setClipToOutline(true);
+
         tempImage.setOnClickListener(view1 -> {
             iconDrawable = actApp.loadIcon(pm);
             packageName = actApp.packageName;
